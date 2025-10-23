@@ -13,7 +13,7 @@ namespace XenoCanto
 
 			const string APIKeyName = "XenoCantoAPIKey";
 			var query = "loc:\"surrey,england\"";//+grp:birds
-			var apiKey = configuration[APIKeyName] ?? "5409063b8f910630369c6ca8b1abe84aafd376ec"; 
+			var apiKey = configuration[APIKeyName]; 
 
 			if(string.IsNullOrEmpty(apiKey))
 			{
