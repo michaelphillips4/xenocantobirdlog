@@ -1,0 +1,85 @@
+﻿@using XenoCanto.Models;
+@page "/wildliferecordings"
+@attribute [StreamRendering]
+@inject IConfiguration Config
+@inject HttpClient http
+@inject XenoCanto.XenoCantoHttpClient xenoCantoHttpClient
+
+<PageTitle>Wild Life Recordings In Surrey England</PageTitle>
+
+<h2>Wild Life Recordings In Surrey England</h2>
+
+@if (data == null )
+{
+    @if (errorString is not null)
+    {
+        <p><em>@errorString</em></p>
+    }
+    else
+    {
+    <p><em>Loading...</em></p>
+    }
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Type</th>
+                <th>Name</th>
+                <th>Recordist</th>
+                <th>Remarks</th>
+                <th>Recordings</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in data.Recordings??[])
+            {
+         
+                <tr>
+                    <td>@item.date</td>
+                    <td>@item.grp</td>
+                    <td>@item.en (@item.sp @item.gen)</td>
+                     <td>@item.rec</td>
+                    <td>@item.rmk</td>
+                    <td>
+                        <audio controls="controls">
+                            <source type="audio/mpeg" 
+                                    src="@item.file">
+                            Your browser does not support the audio element.
+                        </audio>
+
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private Data? data;
+
+    private string url = "";
+    private string? errorString = null;
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            data = await xenoCantoHttpClient.GetAsync();  
+        }
+        catch(Exception ex)
+        {
+            errorString = ex.Message;
+        }
+
+    }
+
+    private class WeatherForecast
+    {
+        public DateOnly Date { get; set; }
+        public int TemperatureC { get; set; }
+        public string? Summary { get; set; }
+        public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+    }
+}

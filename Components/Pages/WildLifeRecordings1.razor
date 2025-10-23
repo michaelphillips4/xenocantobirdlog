@@ -1,0 +1,137 @@
+﻿@using XenoCanto.Models;
+@using Microsoft.AspNetCore.Components.QuickGrid
+@page "/wildliferecordings1"
+@attribute [StreamRendering]
+@rendermode InteractiveServer
+@inject IConfiguration Config
+@inject HttpClient http
+@inject XenoCanto.XenoCantoHttpClient xenoCantoHttpClient
+
+<PageTitle>Wild Life Recordings In Surrey England</PageTitle>
+
+<h2>@NameFilter Wild Life Recordings In Surrey England</h2>
+
+
+@if (recordingsQueryable == null)
+{
+    @if (errorString is not null)
+    {
+        <p><em>@errorString</em></p>
+    }
+    else
+    {
+        <p><em>Loading...</em></p>
+    }
+}
+else
+{
+
+
+   <fieldset>
+        <legend>Filter Name</legend>
+    <input type="text" @bind="NameFilter" placeholder="Filter by Name..." @bind:event="oninput" @bind:after="filters" />
+   </fieldset>
+    <fieldset>
+        <legend>Filter Type</legend>
+        <InputRadioGroup @bind-Value="ModeFilter">
+            <label>
+                <InputRadio Value="FilterModes.All" />
+                All
+            </label>
+            <label>
+                <InputRadio Value="FilterModes.Animals" />
+                Animals
+            </label>
+            <label>
+                <InputRadio Value="FilterModes.Birds" />
+                Birds
+            </label>
+        </InputRadioGroup>
+    </fieldset>
+ 
+    <QuickGrid Items="@recordingsQueryable">
+        <PropertyColumn Property="@(r => r.uploaded)" Title="Date" Format="dd-MM-yyyy" Sortable="true" />
+        <PropertyColumn Property="@(r => r.grp)" Title="Type" Sortable="true" />
+        <PropertyColumn Property="@(r => r.en)" Title="Name" Sortable="true" />
+        <PropertyColumn Property="@(r => r.rec)" Title="Recordist" Sortable="true" />
+        <PropertyColumn Property="@(r => r.rmk)" Title="Remarks" />
+        <TemplateColumn Context="r" Title="Recording">
+            <audio controls="controls">
+                <source type="audio/mpeg"
+                        src="@r.file">
+                Your browser does not support the audio element.
+            </audio>
+
+        </TemplateColumn>
+    </QuickGrid>
+
+}
+
+@code {
+    private Data? data;
+    private IQueryable<Recording>? recordingsQueryable;
+    private string? errorString = null;
+    private string NameFilter { get; set; } = "";
+
+    private enum FilterModes
+    {
+        All,
+        Animals,
+        Birds
+    }
+    private FilterModes _modeFilter = FilterModes.All;
+
+    private FilterModes ModeFilter
+    {
+        get { return _modeFilter; }
+        set
+        {
+            _modeFilter = value;
+
+            filters();
+        }
+    }
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            data = await xenoCantoHttpClient.GetAsync();
+            recordingsQueryable = data.Recordings?.AsQueryable();
+
+        }
+        catch (Exception ex)
+        {
+            errorString = ex.Message;
+        }
+    }
+
+    private void filters()
+    {
+        if (recordingsQueryable != null)
+        {
+            if (string.IsNullOrWhiteSpace(NameFilter) || ModeFilter == FilterModes.All)
+            {
+                recordingsQueryable = data?.Recordings?.AsQueryable();
+            }
+
+            if (ModeFilter != FilterModes.All)
+            {
+                recordingsQueryable = recordingsQueryable?
+                .Where(item => item.grp == (ModeFilter == FilterModes.Animals ? "land mammals" : "birds"));
+            }
+
+            if (!string.IsNullOrWhiteSpace(NameFilter))
+            {
+                recordingsQueryable = recordingsQueryable?
+                .Where(
+                    item => item.en.Contains(NameFilter, StringComparison.OrdinalIgnoreCase)
+                );
+            }
+
+        }
+
+    }
+
+}
