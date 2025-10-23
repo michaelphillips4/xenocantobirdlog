@@ -2,15 +2,12 @@
 
 namespace XenoCanto.Models
 {
-	// Root myDeserializedClass = JsonConvert.DeserializeObject<Root>(myJsonResponse);
 
 	public class Data
 	{
 		public Recording[]? Recordings { get; set; }
 
 	}
-
-
 
 	public class Osci
 	{

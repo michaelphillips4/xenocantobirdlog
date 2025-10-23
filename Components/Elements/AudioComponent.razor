@@ -1,0 +1,10 @@
+﻿@code {
+   [Parameter] 
+   public string Src { get; set; }= "";
+}
+
+<audio controls="controls">
+    <source type="audio/mpeg"
+            src="@Src">
+    Your browser does not support the audio element.
+</audio>
