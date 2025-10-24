@@ -1,0 +1,19 @@
+﻿
+
+<QuickGrid Items="@Recordings">
+    <PropertyColumn Property="@(r => r.uploaded)" Title="Date" Format="dd-MM-yyyy" Sortable="true" />
+    <PropertyColumn Property="@(r => r.grp)" Title="Type" Sortable="true" />
+    <PropertyColumn Property="@(r => r.en)" Title="Name" Sortable="true" />
+    <PropertyColumn Property="@(r => r.rec)" Title="Recordist" Sortable="true" />
+    <PropertyColumn Property="@(r => r.rmk)" Title="Remarks" />
+    <TemplateColumn Context="r" Title="Recording">
+        <AudioComponent Src="@r.file" />
+    </TemplateColumn>
+</QuickGrid>
+
+
+
+@code {
+    [Parameter]
+    public IQueryable<Recording>? Recordings { get; set; } 
+}

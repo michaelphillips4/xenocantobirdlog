@@ -1,7 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc.ApplicationModels;
-using XenoCanto.Models;
+﻿using XenoCanto.Models;
 
-namespace XenoCanto
+namespace Services
 {
 	public enum FilterModes
 	{
@@ -9,20 +8,20 @@ namespace XenoCanto
 		Animals,
 		Birds
 	}
-	public class XenoCantoFilter
+	public class XenoCantoFilterService : IXenoCantoFilterService
 	{
-		private Data? _initialData { get; set; }
+		private Data? initialData { get; set; }
 		public Data? InitialData
 		{
-			get { return _initialData; }
+			get { return initialData; }
 			set
 			{
-				_initialData = value;
-				Recordings = _initialData?.Recordings?.AsQueryable();
+				initialData = value;
+				Recordings = initialData?.Recordings?.AsQueryable();
 			}
 		}
 		public IQueryable<Recording>? Recordings { get; set; }
-	    public string? errorString { get; set; } = null;
+		public string? errorString { get; set; } = null;
 		public string NameFilter { get; set; } = "";
 
 		private FilterModes _modeFilter = FilterModes.All;
@@ -43,7 +42,7 @@ namespace XenoCanto
 			{
 				if (string.IsNullOrWhiteSpace(NameFilter) || ModeFilter == FilterModes.All)
 				{
-					Recordings = InitialData?.Recordings?.AsQueryable();
+					Recordings = initialData?.Recordings?.AsQueryable();
 				}
 
 				if (ModeFilter != FilterModes.All)

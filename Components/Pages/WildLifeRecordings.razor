@@ -1,43 +1,36 @@
 ﻿@page "/wildliferecordings"
+@using Services
 @using XenoCanto
+@rendermode @(new InteractiveServerRenderMode(prerender: false))
+@inject IXenoCantoService _xenoCantoService
+@inject IXenoCantoFilterService _xenoCantoFilterService
 
-@rendermode InteractiveServer
-@inject XenoCanto.XenoCantoHttpClient xenoCantoHttpClient
-
-@code {
-
-    private XenoCanto.XenoCantoFilter FilterHelper = new XenoCanto.XenoCantoFilter();
-
+@code{
+    private bool isLoading = true;
     protected override async Task OnInitializedAsync()
     {
-      
         try
         {
-            FilterHelper.InitialData = await xenoCantoHttpClient.GetAsync();
+            _xenoCantoFilterService.InitialData = await _xenoCantoService.GetAsync();
+            isLoading = false;
         }
         catch (Exception ex)
         {
-            FilterHelper.errorString = ex.Message;
+            _xenoCantoFilterService.errorString = ex.Message;
         }
     }
-
-
-
 }
-
-
-
 
 <PageTitle>Wild Life Recordings In Surrey England</PageTitle>
 
 <h2>Wild Life Recordings In Surrey England</h2>
 
 
-@if (FilterHelper.InitialData == null)
+@if (isLoading)
 {
-    @if (FilterHelper.errorString is not null)
+    @if (_xenoCantoFilterService.errorString is not null)
     {
-        <p><em>@FilterHelper.errorString</em></p>
+        <p><em>@_xenoCantoFilterService.errorString</em></p>
     }
     else
     {
@@ -47,39 +40,33 @@
 else
 {
 
+   @*  <FilterComponent Mode="_xenoCantoFilterService.ModeFilter" NameFilter="_xenoCantoFilterService.NameFilter" /> *@
 
     <fieldset>
         <legend>Filter Name</legend>
-        <input type="text" @bind="FilterHelper.NameFilter" placeholder="Filter by Name..." @bind:event="oninput" />
+        <input type="text" @bind="_xenoCantoFilterService.NameFilter" placeholder="Filter by Name..." @bind:event="oninput" />
     </fieldset>
     <fieldset>
         <legend>Filter Type</legend>
-        <InputRadioGroup @bind-Value="FilterHelper.ModeFilter">
+        <InputRadioGroup @bind-Value="_xenoCantoFilterService.ModeFilter">
             <label>
-                <InputRadio Value="FilterModes.All" />
+                <InputRadio Value="Services.FilterModes.All" />
                 All
             </label>
             <label>
-                <InputRadio Value="FilterModes.Animals" />
+                <InputRadio Value="Services.FilterModes.Animals" />
                 Animals
             </label>
             <label>
-                <InputRadio Value="FilterModes.Birds" />
+                <InputRadio Value="Services.FilterModes.Birds" />
                 Birds
             </label>
         </InputRadioGroup>
     </fieldset>
 
-    <QuickGrid Items="@FilterHelper.Recordings">
-        <PropertyColumn Property="@(r => r.uploaded)" Title="Date" Format="dd-MM-yyyy" Sortable="true" />
-        <PropertyColumn Property="@(r => r.grp)" Title="Type" Sortable="true" />
-        <PropertyColumn Property="@(r => r.en)" Title="Name" Sortable="true" />
-        <PropertyColumn Property="@(r => r.rec)" Title="Recordist" Sortable="true" />
-        <PropertyColumn Property="@(r => r.rmk)" Title="Remarks" />
-        <TemplateColumn Context="r" Title="Recording">
-            <AudioComponent Src="@r.file" />
-        </TemplateColumn>
-    </QuickGrid>
+
+
+    <GridComponent Recordings="_xenoCantoFilterService.Recordings" />   
 
 }
 

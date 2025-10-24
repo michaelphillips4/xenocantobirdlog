@@ -1,5 +1,5 @@
+using Services;
 using xeno_canto.Components;
-using XenoCanto;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,13 +7,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-//recordings?query=loc:%22Surrey,%20England%22+grp:birds
-
-//builder.Services.AddHttpClient("XenoCantoAPI", client => client.BaseAddress = new Uri(builder.Configuration["XenoCantoUrl"] ?? "\\"));
-
-
-// Register the app's typed HttpClient for the typed client component example
-builder.Services.AddHttpClient<XenoCantoHttpClient>(client => client.BaseAddress = new Uri(builder.Configuration["XenoCantoUrl"] ?? "\\"));
+builder.Services.AddHttpClient<IXenoCantoService,XenoCantoService>(client => client.BaseAddress = new Uri(builder.Configuration["XenoCantoUrl"] ?? "\\"));
+builder.Services.AddScoped<IXenoCantoFilterService,XenoCantoFilterService>();
 
 
 var app = builder.Build();

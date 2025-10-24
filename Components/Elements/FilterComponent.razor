@@ -1,0 +1,31 @@
+﻿<fieldset>
+    <legend>Filter Name</legend>
+    <input type="text" @bind="NameFilter" placeholder="Filter by Name..." @bind:event="oninput" />
+</fieldset>
+<fieldset>
+    <legend>Filter Type</legend>
+    <InputRadioGroup @bind-Value="Mode">
+        <label>
+            <InputRadio Value="Services.FilterModes.All" />
+            All
+        </label>
+        <label>
+            <InputRadio Value="Services.FilterModes.Animals" />
+            Animals
+        </label>
+        <label>
+            <InputRadio Value="Services.FilterModes.Birds" />
+            Birds
+        </label>
+    </InputRadioGroup>
+</fieldset>
+
+@code {
+
+    [Parameter]
+    public string? NameFilter { get; set; }
+
+    [Parameter]
+    public Services.FilterModes Mode { get; set; }
+
+}
